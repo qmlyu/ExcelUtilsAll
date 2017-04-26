@@ -173,6 +173,10 @@ public class ExcelUtile {
     private static void createFieldMapped(Sheet sheet, Map<String, String> mapped){
         //拿到第0行，每列默认为对象属性名
         Row fieldsRow = sheet.getRow(sheet.getFirstRowNum());
+        if (fieldsRow == null){
+            return;
+        }
+
         //判断是否存在映射关系，没有则默认使用表格中第0行作为对象的属性名
         boolean isMapping = (mapped != null && !mapped.isEmpty());
         for (short fieldIndex = fieldsRow.getFirstCellNum();
