@@ -1,4 +1,6 @@
-package com.exceltoobj;
+package com.charminglee911.sample;
+
+import com.charminglee911.excelutils.ExcelUtile;
 
 import java.io.FileInputStream;
 import java.util.HashMap;
@@ -30,6 +32,13 @@ public class SampleProgram {
             System.out.println(people2.get(i));
         }
 
+        System.out.println("=====================");
+
+        FileInputStream fileIS3 = new FileInputStream(filePath2);
+        List<PersonAnnotation> people3 = ExcelUtile.xlsxToObj(fileIS3, PersonAnnotation.class, map);
+        for (int i = 0; i < people3.size(); i++) {
+            System.out.println(people3.get(i));
+        }
     }
 
 }

@@ -1,4 +1,4 @@
-package com.exceltoobj;
+package com.charminglee911.excelutils;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -90,11 +90,8 @@ public class ExcelUtile {
      * @throws Exception
      */
     public static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) throws Exception {
-
         XSSFWorkbook xssfWorkbook = new XSSFWorkbook(xlsxIS);
-        List<T> list = excelToObj(xssfWorkbook, classe, mapped);
-
-        return list;
+        return excelToObj(xssfWorkbook, classe, mapped);
     }
 
     /**
@@ -118,7 +115,7 @@ public class ExcelUtile {
                 continue;
 
             //生成Excel表中的属性字段和对象属性的映射关系
-            createFieldMapped(sheet, mapped);
+            createFieldMapped(sheet, mapped, classe);
 
             //生成对象，并读取Excel表中的字段给对象设置相应属性，并添加到list中
             createObjs(list, sheet, classe);
@@ -169,16 +166,20 @@ public class ExcelUtile {
      * 生成对象，并读取Excel表中的字段给对象设置相应属性，并添加到list中
      * @param sheet
      * @param mapped
+     * @param classe
      */
-    private static void createFieldMapped(Sheet sheet, Map<String, String> mapped){
+    private static<T> void createFieldMapped(Sheet sheet, Map<String, String> mapped, Class<T> classe){
         //拿到第0行，每列默认为对象属性名
         Row fieldsRow = sheet.getRow(sheet.getFirstRowNum());
         if (fieldsRow == null){
             return;
         }
 
-        //判断是否存在映射关系，没有则默认使用表格中第0行作为对象的属性名
+        //判断是否存在映射关系
         boolean isMapping = (mapped != null && !mapped.isEmpty());
+        //判断是否存在注解映射
+        boolean isAnnotation = isAnnotation(classe);
+
         for (short fieldIndex = fieldsRow.getFirstCellNum();
              fieldIndex < fieldsRow.getLastCellNum();
              fieldIndex++){
@@ -190,19 +191,48 @@ public class ExcelUtile {
             //处理对象属性和exle的映射
             if (isMapping){
                 String value = mapped.get(cellFiedl);
-
                 if (value != null && !"".equals(value)){
                     fieldMapped.put(cellFiedl, value);
                 }else {
                     fieldMapped.put(cellFiedl, cellFiedl);
                 }
 
-            }else{
+            } else if (isAnnotation) {
+                Field[] declaredFields = classe.getClass().getDeclaredFields();
+                for (Field f : declaredFields) {
+                    ExcelField annotation = f.getAnnotation(ExcelField.class);
+                    if (annotation != null){
+                        fieldMapped.put(cellFiedl, annotation.name());
+                    }
+                }
+            } else { //没有映射关系，则默认使用表格中第0行作为对象的属性名
                 fieldMapped.put(cellFiedl, cellFiedl);
             }
 
         }
 
+    }
+
+    /**
+     * 判读是否注解映射
+     * @param classe
+     * @param <T>
+     * @return
+     */
+    private static<T> boolean isAnnotation(Class<T> classe){
+        boolean isTypeAnnotation = classe.getClass().isAnnotationPresent(ExcelSheet.class);
+        if (isTypeAnnotation){
+            return true;
+        }
+
+        Field[] declaredFields = classe.getClass().getDeclaredFields();
+        for (Field f: declaredFields) {
+            if (f.isAnnotationPresent(ExcelField.class)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

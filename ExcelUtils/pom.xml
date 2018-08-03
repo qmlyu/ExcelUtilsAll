@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>ExcelUtilsAll</artifactId>
+        <groupId>com.charminglee911</groupId>
+        <version>0.9.release</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>ExcelUtils</name>
+    <description>读取Excel工具</description>
+    <url>https://github.com/CharmingLee/ExcelUtils</url>
+
+    <packaging>jar</packaging>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>charminglee</name>
+            <url>https://github.com/CharmingLee</url>
+            <email>charminglee@charminglee911.com</email>
+            <roles>
+                <role>Project Manager</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>https://github.com/CharmingLee/ExcelUtils.git</connection>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>ExcelUtils</id>
+            <name>ExcelUtils</name>
+            <url>https://github.com/CharmingLee/ExcelUtils</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>ExcelUtils</id>
+            <name>ExcelUtils</name>
+            <url>file:///home/thara/testesb/in</url>
+        </repository>
+    </distributionManagement>
+
+    <artifactId>ExcelUtils</artifactId>
+    <version>0.9.release</version>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
