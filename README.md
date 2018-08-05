@@ -19,6 +19,10 @@
 
 ![1936229-69262f702e529880.png](http://upload-images.jianshu.io/upload_images/1936229-55ec0a24cd71f9c5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
+2018.8.5日更新：
+增加注解操作，具体的例子可以从我的github工程里看，截图操作如下：
+![809056E9-2BEB-450F-B3D9-FE5B66D208F7.png](https://upload-images.jianshu.io/upload_images/1936229-1a7e34e68f43075a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 
 简书地址：
 http://www.jianshu.com/p/5696317fd4c7
