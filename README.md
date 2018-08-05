@@ -23,6 +23,15 @@
 增加注解操作，具体的例子可以从我的github工程里看，截图操作如下：
 ![809056E9-2BEB-450F-B3D9-FE5B66D208F7.png](https://upload-images.jianshu.io/upload_images/1936229-1a7e34e68f43075a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
+后续更新导出Excel功能！！！
+
+maven地址点[这里](https://mvnrepository.com/artifact/com.charminglee911/ExcelUtils)
+maven构建：
+<dependency>
+    <groupId>com.charminglee911</groupId>
+    <artifactId>ExcelUtils</artifactId>
+    <version>0.9.release</version>
+</dependency>
 
 简书地址：
 http://www.jianshu.com/p/5696317fd4c7
