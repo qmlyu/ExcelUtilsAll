@@ -15,9 +15,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 将Excel表中的内容生成对应的对象，第0行必须是对象的属性命，如果第0行和对象属性名不一致，可进行相关的关系映射
  *
- * Created by CharmingLee on 2017/4/1.
+ * Author CharmingLee
+ * Date 2017/4/1
+ * Description 将Excel表中的内容生成对应的对象，第0行必须是对象的属性命，如果第0行和对象属性名不一致，可进行相关的关系映射
+ *
  */
 public class ExcelUtile {
     /**

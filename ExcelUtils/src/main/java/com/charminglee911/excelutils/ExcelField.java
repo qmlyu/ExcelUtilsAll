@@ -6,9 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @Author CharmingLee
- * @Date 2018/8/1
- * @Description TODO
+ * Author CharmingLee
+ * Date 2018/8/1
+ * Description TODO
  **/
 
 @Target(ElementType.FIELD)
