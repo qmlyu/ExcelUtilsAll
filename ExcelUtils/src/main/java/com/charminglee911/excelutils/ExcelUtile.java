@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * Author CharmingLee
  * Date 2017/4/1
- * Description 将Excel表中的内容生成对应的对象，第0行必须是对象的属性命，如果第0行和对象属性名不一致，可进行相关的关系映射
+ * Description 将Excel表中的内容生成对应的对象，第0行必须是对象的属性名，如果第0行和对象属性名不一致，可进行相关的关系映射
  *
  */
 public class ExcelUtile {
@@ -61,7 +61,6 @@ public class ExcelUtile {
      * @param classe    要解析成的对象
      * @param <T>       泛型
      * @return
-     * @throws Exception
      */
     public static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe) {
         return xlsxToObj(xlsxIS, classe, null);
@@ -71,9 +70,8 @@ public class ExcelUtile {
      * 2007以下版本生成的xls格式的excle
      * @param xlsxIS    文件流
      * @param classe    要解析成的对象
-     * @param mapped    对象属性和excle表中的字段的映射关系
-     *                  key为Excel表中的字段，value为classe中对应的属性名称
-     * @m <T>       泛型
+     * @param mapped    对象属性和excle表中的字段的映射关系key为Excel表中的字段，value为classe中对应的属性名称
+     * @param <T>       泛型
      * @return
      */
     public static<T> List<T> xlsToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) {
@@ -94,12 +92,11 @@ public class ExcelUtile {
      * 2007以上版本生成的xlsx格式的excle
      * @param xlsxIS    文件流
      * @param classe    要解析成的对象
-     * @param mapped    对象属性和excle表中的字段的映射关系
-     *                  key为Excel表，value为classe中对应的属性名称
+     * @param mapped    对象属性和excle表中的字段的映射关系key为Excel表，value为classe中对应的属性名称
      * @param <T>       泛型
      * @return
      */
-    private static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) {
+    public static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) {
         List<T> list = null;
         try {
             XSSFWorkbook xssfWorkbook = new XSSFWorkbook(xlsxIS);
@@ -115,9 +112,9 @@ public class ExcelUtile {
 
     /**
      * 创建xls格式的Excel文本
-     * @param file
-     * @param list
-     * @param <T>
+     * @param file 待创建的文件对象
+     * @param list 创建的对象
+     * @param <T>  泛型
      */
     public static<T> void objToXlsx(File file, List<T> list) {
         HSSFWorkbook workbook = createBook(list);
@@ -132,8 +129,8 @@ public class ExcelUtile {
 
     /**
      * 创建Excel对象
-     * @param list
-     * @param <T>
+     * @param list 创建的对象
+     * @param <T>  泛型
      * @return
      */
     private static<T>  HSSFWorkbook createBook(List<T> list){
@@ -186,9 +183,9 @@ public class ExcelUtile {
 
     /**
      * 构建Excel的内容
-     * @param t
-     * @param newRow
-     * @param <T>
+     * @param t      单个对象
+     * @param newRow Excel的行
+     * @param <T>    泛型
      * @throws IllegalAccessException
      */
     private static <T> void createCell(T t, HSSFRow newRow) throws IllegalAccessException {
@@ -228,8 +225,7 @@ public class ExcelUtile {
      * 解析excle中的字段成对象
      * @param workbook  excle对象
      * @param classe    要解析成的对象
-     * @param mapped    对象属性和excle表中的字段的映射关系
-     *                  key为Excel表中的字段，value为classe中对应的属性名称
+     * @param mapped    对象属性和excle表中的字段的映射关系key为Excel表中的字段，value为classe中对应的属性名称
      * @param <T>       泛型
      * @return
      * @throws Exception

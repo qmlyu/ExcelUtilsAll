@@ -8,7 +8,7 @@ import com.charminglee911.excelutils.ExcelSheet;
  * @Date 2018/8/1
  * @Description TODO
  **/
-@ExcelSheet(name = "person1")
+@ExcelSheet(name = "person")
 public class PersonAnnotation {
     @ExcelField(name = "姓名")
     private String name;
