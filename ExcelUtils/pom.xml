@@ -38,7 +38,7 @@
     </developers>
 
     <scm>
-        <connection>https://github.com/CharmingLee/ExcelUtilsAll.git</connection>
+        <url>https://github.com/CharmingLee/ExcelUtilsAll.git</url>
     </scm>
 
     <repositories>
