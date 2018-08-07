@@ -42,6 +42,7 @@ public class SampleProgram {
             System.out.println(people3.get(i));
         }
 
+        //对象导出Excel文件
         File file = new File("/Users/charminglee/Desktop/test.xls");
         ExcelUtile.objToXlsx(file, people3);
     }
