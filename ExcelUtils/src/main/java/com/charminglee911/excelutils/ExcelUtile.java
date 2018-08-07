@@ -1,5 +1,7 @@
 package com.charminglee911.excelutils;
 
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -7,6 +9,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -25,11 +29,11 @@ public class ExcelUtile {
     /**
      * Excel表中属性集合
      */
-    private static List<String> fieldList = new ArrayList<String>();
+    private static List<String> fieldList = new ArrayList<>();
     /**
      * Excel表中属性和对象的关系映射
      */
-    private static Map<String, String> fieldMapped = new  HashMap<String, String>();
+    private static Map<String, String> fieldMapped = new  HashMap<>();
 
     private static final String LANG_STRING = "java.lang.String";
     private static final String LANG_INTEGER = "java.lang.Integer";
@@ -46,9 +50,8 @@ public class ExcelUtile {
      * @param classe    要解析成的对象
      * @param <T>       泛型
      * @return
-     * @throws Exception
      */
-    public static<T> List<T> xlsToObj(InputStream xlsxIS, Class<T> classe) throws Exception{
+    public static<T> List<T> xlsToObj(InputStream xlsxIS, Class<T> classe) {
         return xlsToObj(xlsxIS, classe, null);
     }
 
@@ -60,7 +63,7 @@ public class ExcelUtile {
      * @return
      * @throws Exception
      */
-    public static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe) throws Exception{
+    public static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe) {
         return xlsxToObj(xlsxIS, classe, null);
     }
 
@@ -70,13 +73,19 @@ public class ExcelUtile {
      * @param classe    要解析成的对象
      * @param mapped    对象属性和excle表中的字段的映射关系
      *                  key为Excel表中的字段，value为classe中对应的属性名称
-     * @param <T>       泛型
+     * @m <T>       泛型
      * @return
-     * @throws Exception
      */
-    public static<T> List<T> xlsToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) throws Exception {
-        HSSFWorkbook workbook = new HSSFWorkbook(xlsxIS);
-        List<T> list = excelToObj(workbook, classe, mapped);
+    public static<T> List<T> xlsToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) {
+        List<T> list = null;
+        try {
+            HSSFWorkbook workbook = new HSSFWorkbook(xlsxIS);
+            list = excelToObj(workbook, classe, mapped);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new BusinessRuntimeException("Excel文件读取失败");
+        }
 
         return list;
     }
@@ -86,14 +95,133 @@ public class ExcelUtile {
      * @param xlsxIS    文件流
      * @param classe    要解析成的对象
      * @param mapped    对象属性和excle表中的字段的映射关系
-     *                  key为Excel表中的字段，value为classe中对应的属性名称
+     *                  key为Excel表，value为classe中对应的属性名称
      * @param <T>       泛型
      * @return
-     * @throws Exception
      */
-    public static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) throws Exception {
-        XSSFWorkbook xssfWorkbook = new XSSFWorkbook(xlsxIS);
-        return excelToObj(xssfWorkbook, classe, mapped);
+    private static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) {
+        List<T> list = null;
+        try {
+            XSSFWorkbook xssfWorkbook = new XSSFWorkbook(xlsxIS);
+            list = excelToObj(xssfWorkbook, classe, mapped);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new BusinessRuntimeException("Excel文件读取失败");
+        }
+
+        return list;
+    }
+
+    /**
+     * 创建xls格式的Excel文本
+     * @param file
+     * @param list
+     * @param <T>
+     */
+    public static<T> void objToXlsx(File file, List<T> list) {
+        HSSFWorkbook workbook = createBook(list);
+
+        try {
+            workbook.write(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 创建Excel对象
+     * @param list
+     * @param <T>
+     * @return
+     */
+    private static<T>  HSSFWorkbook createBook(List<T> list){
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        if (list.isEmpty()){
+            return workbook;
+        }
+
+        Class clazz = list.get(0).getClass();
+        String sheetName = null;
+        if (clazz.isAnnotationPresent(ExcelSheet.class)){
+            ExcelSheet sheetType = (ExcelSheet) clazz.getAnnotationsByType(ExcelSheet.class)[0];
+            sheetName = sheetType.name();
+        }
+
+        List<String> sheetFields = new ArrayList<>();
+        Field[] declaredFields = clazz.getDeclaredFields();
+        for (Field field : declaredFields) {
+            if (field.isAnnotationPresent(ExcelField.class)){
+                ExcelField excelField = field.getAnnotationsByType(ExcelField.class)[0];
+                sheetFields.add(excelField.name());
+            }
+        }
+
+
+        HSSFSheet sheet;
+        if (sheetName != null){
+            sheet = workbook.createSheet(sheetName);
+        } else {
+            sheet = workbook.createSheet();
+        }
+
+        HSSFRow row = sheet.createRow(0);
+        for (int i = 0; i < sheetFields.size(); i++) {
+            row.createCell(i).setCellValue(sheetFields.get(i));
+        }
+
+        for (int i = 0; i < list.size(); i++) {
+            T t = list.get(i);
+            HSSFRow newRow = sheet.createRow(i + 1);
+            try {
+                createCell(t, newRow);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return workbook;
+    }
+
+    /**
+     * 构建Excel的内容
+     * @param t
+     * @param newRow
+     * @param <T>
+     * @throws IllegalAccessException
+     */
+    private static <T> void createCell(T t, HSSFRow newRow) throws IllegalAccessException {
+        Field[] declaredFields = t.getClass().getDeclaredFields();
+
+        for (int j = 0; j < declaredFields.length; j++) {
+            Field field = declaredFields[j];
+            String fieldType = field.getType().getName();
+            field.setAccessible(true);
+            switch (fieldType){
+                case LANG_STRING:
+                    newRow.createCell(j).setCellValue(field.get(t).toString());
+                    break;
+                case LANG_INTEGER:
+                    newRow.createCell(j).setCellValue(field.getInt(t));
+                    break;
+                case LANG_DOUBLE:
+                    newRow.createCell(j).setCellValue(field.getDouble(t));
+                    break;
+                case LANG_SHORT:
+                    newRow.createCell(j).setCellValue(field.getShort(t));
+                    break;
+                case LANG_LONG:
+                    newRow.createCell(j).setCellValue(field.getLong(t));
+                    break;
+                case LANG_FLOAT:
+                    newRow.createCell(j).setCellValue(field.getFloat(t));
+                    break;
+                case LANG_BOOLEAN:
+                    newRow.createCell(j).setCellValue(field.getBoolean(t));
+                    break;
+            }
+        }
     }
 
     /**
@@ -108,13 +236,24 @@ public class ExcelUtile {
      */
     private static<T> List<T> excelToObj(Workbook workbook, Class<T> classe, Map<String, String> mapped) throws Exception {
         //创建对象集合
-        List<T> list = new ArrayList<T>();
+        List<T> list = new ArrayList<>();
+
+        String sheetName = null;
+
+        ExcelSheet sheetAnnotation = classe.getAnnotation(ExcelSheet.class);
+        if (sheetAnnotation != null){
+            sheetName = sheetAnnotation.name();
+        }
 
         //循环所有表格生成对象
         for (int numSheet = 0; numSheet < workbook.getNumberOfSheets(); numSheet++) {
             Sheet sheet = workbook.getSheetAt(numSheet);
             if (sheet == null)
                 continue;
+
+            if (sheetName != null && !"".equals(sheetName) && !sheetName.equals(sheet.getSheetName())){
+                continue;
+            }
 
             //生成Excel表中的属性字段和对象属性的映射关系
             createFieldMapped(sheet, mapped, classe);
@@ -123,16 +262,16 @@ public class ExcelUtile {
             createObjs(list, sheet, classe);
         }
 
-        fieldList = new ArrayList<String>();
-        fieldMapped = new  HashMap<String, String>();
+        fieldList = new ArrayList<>();
+        fieldMapped = new  HashMap<>();
 
         return list;
     }
 
     /**
      * 生成Excel表中的属性字段和对象属性的映射关系
-     * @param list
-     * @param sheet
+     * @param list 待生成Excel的对象集合
+     * @param sheet Excel表的sheet
      * @param classe
      * @param <T>
      * @throws Exception
@@ -198,13 +337,12 @@ public class ExcelUtile {
                 }else {
                     fieldMapped.put(cellFiedl, cellFiedl);
                 }
-
             } else if (isAnnotation) {
-                Field[] declaredFields = classe.getClass().getDeclaredFields();
+                Field[] declaredFields = classe.getDeclaredFields();
                 for (Field f : declaredFields) {
-                    ExcelField annotation = f.getAnnotation(ExcelField.class);
-                    if (annotation != null){
-                        fieldMapped.put(cellFiedl, annotation.name());
+                    if (f.isAnnotationPresent(ExcelField.class)){
+                        ExcelField annotation = f.getAnnotation(ExcelField.class);
+                        fieldMapped.put(annotation.name(), f.getName());
                     }
                 }
             } else { //没有映射关系，则默认使用表格中第0行作为对象的属性名
@@ -222,12 +360,12 @@ public class ExcelUtile {
      * @return
      */
     private static<T> boolean isAnnotation(Class<T> classe){
-        boolean isTypeAnnotation = classe.getClass().isAnnotationPresent(ExcelSheet.class);
+        boolean isTypeAnnotation = classe.isAnnotationPresent(ExcelSheet.class);
         if (isTypeAnnotation){
             return true;
         }
 
-        Field[] declaredFields = classe.getClass().getDeclaredFields();
+        Field[] declaredFields = classe.getDeclaredFields();
         for (Field f: declaredFields) {
             if (f.isAnnotationPresent(ExcelField.class)){
                 return true;
