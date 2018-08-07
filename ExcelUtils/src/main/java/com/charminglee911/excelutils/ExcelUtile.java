@@ -49,7 +49,7 @@ public class ExcelUtile {
      * @param xlsxIS    文件流
      * @param classe    要解析成的对象
      * @param <T>       泛型
-     * @return
+     * @return          对象集合
      */
     public static<T> List<T> xlsToObj(InputStream xlsxIS, Class<T> classe) {
         return xlsToObj(xlsxIS, classe, null);
@@ -60,7 +60,7 @@ public class ExcelUtile {
      * @param xlsxIS    文件流
      * @param classe    要解析成的对象
      * @param <T>       泛型
-     * @return
+     * @return          对象集合
      */
     public static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe) {
         return xlsxToObj(xlsxIS, classe, null);
@@ -72,7 +72,7 @@ public class ExcelUtile {
      * @param classe    要解析成的对象
      * @param mapped    对象属性和excle表中的字段的映射关系key为Excel表中的字段，value为classe中对应的属性名称
      * @param <T>       泛型
-     * @return
+     * @return          对象集合
      */
     public static<T> List<T> xlsToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) {
         List<T> list = null;
@@ -94,7 +94,7 @@ public class ExcelUtile {
      * @param classe    要解析成的对象
      * @param mapped    对象属性和excle表中的字段的映射关系key为Excel表，value为classe中对应的属性名称
      * @param <T>       泛型
-     * @return
+     * @return          对象集合
      */
     public static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) {
         List<T> list = null;
@@ -131,7 +131,7 @@ public class ExcelUtile {
      * 创建Excel对象
      * @param list 创建的对象
      * @param <T>  泛型
-     * @return
+     * @return     Excel对象
      */
     private static<T>  HSSFWorkbook createBook(List<T> list){
         HSSFWorkbook workbook = new HSSFWorkbook();
@@ -227,7 +227,7 @@ public class ExcelUtile {
      * @param classe    要解析成的对象
      * @param mapped    对象属性和excle表中的字段的映射关系key为Excel表中的字段，value为classe中对应的属性名称
      * @param <T>       泛型
-     * @return
+     * @return          对象集合
      * @throws Exception
      */
     private static<T> List<T> excelToObj(Workbook workbook, Class<T> classe, Map<String, String> mapped) throws Exception {
