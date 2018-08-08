@@ -1,7 +1,5 @@
 package com.charminglee911.excelutils;
 
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -9,9 +7,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +38,8 @@ public class ExcelUtile {
     private static final String LANG_LONG = "java.lang.Long";
     private static final String LANG_FLOAT = "java.lang.Float";
     private static final String LANG_BOOLEAN = "java.lang.Boolean";
+    private static final String Excel2003 = "xls";
+    private static final String Excel2007 = "xlsx";
 
 
     /**
@@ -51,6 +49,7 @@ public class ExcelUtile {
      * @param <T>       泛型
      * @return          对象集合
      */
+    @Deprecated
     public static<T> List<T> xlsToObj(InputStream xlsxIS, Class<T> classe) {
         return xlsToObj(xlsxIS, classe, null);
     }
@@ -62,6 +61,7 @@ public class ExcelUtile {
      * @param <T>       泛型
      * @return          对象集合
      */
+    @Deprecated
     public static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe) {
         return xlsxToObj(xlsxIS, classe, null);
     }
@@ -74,6 +74,7 @@ public class ExcelUtile {
      * @param <T>       泛型
      * @return          对象集合
      */
+    @Deprecated
     public static<T> List<T> xlsToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) {
         List<T> list = null;
         try {
@@ -96,6 +97,7 @@ public class ExcelUtile {
      * @param <T>       泛型
      * @return          对象集合
      */
+    @Deprecated
     public static<T> List<T> xlsxToObj(InputStream xlsxIS, Class<T> classe, Map<String, String> mapped) {
         List<T> list = null;
         try {
@@ -111,20 +113,86 @@ public class ExcelUtile {
     }
 
     /**
-     * 创建xls格式的Excel文本
+     * 从Excel文件中读取对象,根据file的文件扩展名识别xls、xlsx格式
+     * @param file   Excel文件
+     * @param classe 转换的目标对象类
+     * @param <T>    泛型
+     * @return
+     */
+    public static<T> List<T> excelFileToObjects(File file, Class<T> classe){
+        return excelFileToObjects(file, classe, null);
+    }
+
+    /**
+     * 从Excel文件中读取对象,根据file的文件扩展名识别xls、xlsx格式
+     * @param file   Excel文件
+     * @param classe 转换的目标对象类
+     * @param mapped 字段关系映射
+     * @param <T>    泛型
+     * @return
+     */
+    public static<T> List<T> excelFileToObjects(File file, Class<T> classe, Map<String, String> mapped){
+        List<T> list;
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            String fileName = file.getName();
+            int index = fileName.lastIndexOf(".");
+            String suffix = fileName.substring(index + 1);
+
+            if (Excel2003.equals(suffix)){
+                list = excelToObj(new HSSFWorkbook(fis), classe, mapped);
+            } else if (Excel2007.equals(suffix)){
+                list = excelToObj(new XSSFWorkbook(fis), classe, mapped);
+            } else {
+                throw new BusinessRuntimeException("文件格式不兼容");
+            }
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+
+            throw new BusinessRuntimeException("对象生成失败");
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            throw new BusinessRuntimeException("文件操作异常");
+        }
+
+        return list;
+    }
+
+    /**
+     * 创建Excel文本,根据file的文件扩展名识别xls、xlsx格式
+     *
      * @param file 待创建的文件对象
      * @param list 创建的对象
      * @param <T>  泛型
+     * @return     转换的结果
      */
-    public static<T> void objToXlsx(File file, List<T> list) {
-        HSSFWorkbook workbook = createBook(list);
-
-        try {
-            workbook.write(file);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static<T> void objectsToExcelFile(File file, List<T> list) {
+        if (file == null){
+            throw new BusinessRuntimeException("文件不能为空");
         }
 
+        String fileName = file.getName();
+        int index = fileName.lastIndexOf(".");
+        String suffix = fileName.substring(index + 1);
+
+        try {
+            Workbook workbook;
+            if (Excel2003.equals(suffix)){
+                workbook = createBook(new HSSFWorkbook(), list);
+            } else if (Excel2007.equals(suffix)){
+                workbook = createBook(new XSSFWorkbook(), list);
+            } else {
+                throw new BusinessRuntimeException("文件格式不兼容");
+            }
+
+            FileOutputStream fos = new FileOutputStream(file);
+            workbook.write(fos);
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            throw new BusinessRuntimeException("文件写入失败");
+        }
     }
 
     /**
@@ -133,8 +201,7 @@ public class ExcelUtile {
      * @param <T>  泛型
      * @return     Excel对象
      */
-    private static<T>  HSSFWorkbook createBook(List<T> list){
-        HSSFWorkbook workbook = new HSSFWorkbook();
+    private static<T> Workbook createBook(Workbook workbook, List<T> list){
         if (list.isEmpty()){
             return workbook;
         }
@@ -156,21 +223,21 @@ public class ExcelUtile {
         }
 
 
-        HSSFSheet sheet;
+        Sheet sheet;
         if (sheetName != null){
             sheet = workbook.createSheet(sheetName);
         } else {
             sheet = workbook.createSheet();
         }
 
-        HSSFRow row = sheet.createRow(0);
+        Row row = sheet.createRow(0);
         for (int i = 0; i < sheetFields.size(); i++) {
             row.createCell(i).setCellValue(sheetFields.get(i));
         }
 
         for (int i = 0; i < list.size(); i++) {
             T t = list.get(i);
-            HSSFRow newRow = sheet.createRow(i + 1);
+            Row newRow = sheet.createRow(i + 1);
             try {
                 createCell(t, newRow);
             } catch (IllegalAccessException e) {
@@ -188,7 +255,7 @@ public class ExcelUtile {
      * @param <T>    泛型
      * @throws IllegalAccessException
      */
-    private static <T> void createCell(T t, HSSFRow newRow) throws IllegalAccessException {
+    private static <T> void createCell(T t, Row newRow) throws IllegalAccessException {
         Field[] declaredFields = t.getClass().getDeclaredFields();
 
         for (int j = 0; j < declaredFields.length; j++) {
@@ -230,7 +297,7 @@ public class ExcelUtile {
      * @return          对象集合
      * @throws Exception
      */
-    private static<T> List<T> excelToObj(Workbook workbook, Class<T> classe, Map<String, String> mapped) throws Exception {
+    private static<T> List<T> excelToObj(Workbook workbook, Class<T> classe, Map<String, String> mapped) throws ReflectiveOperationException {
         //创建对象集合
         List<T> list = new ArrayList<>();
 
@@ -272,7 +339,7 @@ public class ExcelUtile {
      * @param <T>
      * @throws Exception
      */
-    private static<T> void createObjs(List<T> list, Sheet sheet, Class<T> classe) throws Exception{
+    private static<T> void createObjs(List<T> list, Sheet sheet, Class<T> classe) throws ReflectiveOperationException {
 
         //第0行默认为对象属性，从第1行读取字段作为对象的属性
         for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
