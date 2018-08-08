@@ -32,7 +32,7 @@ maven构建：
 <dependency>
     <groupId>com.charminglee911</groupId>
     <artifactId>ExcelUtils</artifactId>
-    <version>0.9.release</version>
+    <version>1.0.release</version>
 </dependency>
 ```
 
