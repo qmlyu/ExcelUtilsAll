@@ -117,7 +117,7 @@ public class ExcelUtile {
      * @param file   Excel文件
      * @param classe 转换的目标对象类
      * @param <T>    泛型
-     * @return
+     * @return       对象集合
      */
     public static<T> List<T> excelFileToObjects(File file, Class<T> classe){
         return excelFileToObjects(file, classe, null);
@@ -129,7 +129,7 @@ public class ExcelUtile {
      * @param classe 转换的目标对象类
      * @param mapped 字段关系映射
      * @param <T>    泛型
-     * @return
+     * @return       对象集合
      */
     public static<T> List<T> excelFileToObjects(File file, Class<T> classe, Map<String, String> mapped){
         List<T> list;
@@ -165,7 +165,6 @@ public class ExcelUtile {
      * @param file 待创建的文件对象
      * @param list 创建的对象
      * @param <T>  泛型
-     * @return     转换的结果
      */
     public static<T> void objectsToExcelFile(File file, List<T> list) {
         if (file == null){
